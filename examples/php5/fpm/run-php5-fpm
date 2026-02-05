@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Template the php-fpm.conf file with the environment variables
+sed -ie "s|^user =.*$|user = ${USER}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^group =.*$|group = ${GROUP}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^listen =.*$|listen = ${LISTEN}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^pm\.max_children =.*$|pm\.max_children = ${PM_MAX_CHILDREN}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^pm\.start_servers =.*$|pm\.start_servers = ${PM_START_SERVERS}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^pm\.min_spare_servers =.*$|pm\.min_spare_servers = ${PM_MIN_SPARE_SERVERS}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^pm\.max_spare_servers =.*$|pm\.max_spare_servers = ${PM_MAX_SPARE_SERVERS}|g" /etc/php5/fpm/php-fpm.conf
+sed -ie "s|^pm\.max_requests =.*$|pm\.max_requests = ${PM_MAX_REQUESTS}|g" /etc/php5/fpm/php-fpm.conf
+
+# Template New Relic PHP module configuration
+sed -ie "s|^newrelic.license =.*$|newrelic.license = ${NR_INSTALL_KEY}|g" /etc/php5/fpm/conf.d/newrelic.ini
+sed -ie "s|^newrelic.license =.*$|newrelic.license = ${NR_INSTALL_KEY}|g" /etc/php5/cli/conf.d/newrelic.ini
+
+cat > /etc/php5/mods-available/opcache.ini << EOL
+; configuration for php ZendOpcache module
+; priority=05
+zend_extension=opcache.so
+EOL
+
+# Add in the production opcache configuration
+#
+# PHP-fpm will have to be reloaded everytime the PHP file change
+if [ "${OPCACHE_PRODUCTION}" == "yes" ]; then
+cat >> /etc/php5/mods-available/opcache.ini << EOL
+opcache.revalidate_freq=0
+opcache.validate_timestamps=0
+opcache.max_accelerated_files=3000
+opcache.memory_consumption=192
+opcache.interned_strings_buffer=16
+opcache.fast_shutdown=1
+EOL
+fi
+
+exec /usr/sbin/php5-fpm

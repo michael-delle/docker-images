@@ -1,0 +1,40 @@
+steps:
+
+  # michaeldelle/php5:fpm
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: [ '-c', 'docker login --username=$$USERNAME --password=$$PASSWORD' ]
+    secretEnv: [ 'USERNAME', 'PASSWORD' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: [ '-c', 'docker build -t michaeldelle/php5:fpm ./php5/fpm' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: [ '-c', 'docker push michaeldelle/php5:fpm' ]
+
+  # michaeldelle/php5:fpm-xdebug
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: [ '-c', 'docker build -t michaeldelle/php5:fpm-xdebug ./php5/fpm/xdebug' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: [ '-c', 'docker push michaeldelle/php5:fpm-xdebug' ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'eu.gcr.io/michaeldelle/php72-appengine-build', './php72-appengine-build' ]
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/303526359540/secrets/docker-password/versions/1
+      env: 'PASSWORD'
+    - versionName: projects/303526359540/secrets/docker-username/versions/1
+      env: 'USERNAME'
+
+images: [
+    'eu.gcr.io/michaeldelle/php72-appengine-build'
+]
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+
+timeout: 4800s
