@@ -1,5 +1,7 @@
 # Docker Images
 
+[![Docker Image CI](https://github.com/michael-delle/docker-images/actions/workflows/docker-image.yml/badge.svg?branch=master&event=push)](https://github.com/michael-delle/docker-images/actions/workflows/docker-image.yml)
+
 ## examples
 
 1. cloudbuild.yaml - Cloud Build CI configuration used by example builds.
