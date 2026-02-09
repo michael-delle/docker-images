@@ -29,9 +29,9 @@ jobs:
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
           - target: prod
-            tag: 74-fpm
+            tag: 74-fpm-alpine
           - target: dev
-            tag: 74-fpm-xdebug
+            tag: 74-fpm-xdebug-alpine
     runs-on: ${{ matrix.runner }}
 
     steps:
@@ -96,9 +96,9 @@ jobs:
       matrix:
         include:
           - target: prod
-            tag: 74-fpm
+            tag: 74-fpm-alpine
           - target: dev
-            tag: 74-fpm-xdebug
+            tag: 74-fpm-xdebug-alpine
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
