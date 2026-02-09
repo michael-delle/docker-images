@@ -8,7 +8,7 @@ ENV PM_MIN_SPARE_SERVERS=5
 ENV PM_MAX_SPARE_SERVERS=15
 ENV PM_MAX_REQUESTS=1000
 
-COPY prod/run-php-fpm /run-php-fpm
+COPY shared/run-php-fpm /usr/local/bin/run-php-fpm
 
 RUN export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS"; \
     apt-get update -qq \
@@ -52,32 +52,36 @@ RUN export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS";
           /tmp/*  \
           /var/tmp/* \
           /var/cache/apt/*; \
-    chmod a+x /run-php-fpm;
+    chmod a+x /usr/local/bin/run-php-fpm;
 
 COPY prod/php-fpm.conf /usr/local/etc/php-fpm.d/zz-php.conf
-COPY prod/php.ini /usr/local/etc/php/conf.d/php-ini-overrides.ini
+COPY shared/php.ini /usr/local/etc/php/conf.d/php-ini-overrides.ini
 
-CMD ["/run-php-fpm"]
+CMD ["/usr/local/bin/run-php-fpm"]
 
 # Development stage
-FROM composer:2.9 AS composer
+FROM composer:2 AS composer
 FROM base AS dev
 
-RUN pecl install xdebug-3.1.6 \
-        && docker-php-ext-enable \
-            xdebug; \
-    apt-get clean \
+RUN apt-get update -qq \
+        && apt-get install -qqy --no-install-recommends \
+            $PHPIZE_DEPS \
+        && pecl install xdebug-3.1.6 \
+        && docker-php-ext-enable xdebug \
+        && apt-get clean \
         && rm -rf \
           /var/lib/apt/lists/* \
-          /tmp/*  \
+          /tmp/* \
           /var/tmp/* \
           /var/cache/apt/*; \
     mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY dev/php-dev.ini /usr/local/etc/php/conf.d/opcache-dev.ini
 
 # Production stage
 FROM base AS prod
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini";
+COPY prod/php.ini /usr/local/etc/php/conf.d/opcache-prod.ini
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
