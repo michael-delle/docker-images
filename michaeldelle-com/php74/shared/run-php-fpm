@@ -7,4 +7,9 @@ sed -i "s|^pm\.min_spare_servers =.*$|pm.min_spare_servers = ${PM_MIN_SPARE_SERV
 sed -i "s|^pm\.max_spare_servers =.*$|pm.max_spare_servers = ${PM_MAX_SPARE_SERVERS}|g" /usr/local/etc/php-fpm.d/zz-php.conf
 sed -i "s|^pm\.max_requests =.*$|pm.max_requests = ${PM_MAX_REQUESTS}|g" /usr/local/etc/php-fpm.d/zz-php.conf
 
+# Template xdebug client_host if the config file exists
+if [ -f /usr/local/etc/php/conf.d/xdebug.ini ]; then
+    sed -i "s|XDEBUG_CLIENT_HOST_PLACEHOLDER|${XDEBUG_CLIENT_HOST}|g" /usr/local/etc/php/conf.d/xdebug.ini
+fi
+
 exec /usr/local/sbin/php-fpm
