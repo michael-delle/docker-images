@@ -109,8 +109,10 @@ jobs:
           tags: ${{ env.REGISTRY_IMAGE }}
           context: michaeldelle-com/php74
           target: ${{ matrix.target }}
-          cache-from: type=gha,scope=${{ matrix.target }}-${{ env.PLATFORM_PAIR }}
-          cache-to: type=gha,scope=${{ matrix.target }}-${{ env.PLATFORM_PAIR }}
+          cache-from: |
+            type=gha,scope=prod-${{ env.PLATFORM_PAIR }}
+            type=gha,scope=dev-${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,scope=${{ matrix.target }}-${{ env.PLATFORM_PAIR }},mode=max
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
