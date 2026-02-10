@@ -14,6 +14,7 @@ RUN apk add --no-cache \
         git \
         icu-libs \
         imagemagick-libs \
+        libgomp \
         libjpeg-turbo \
         libmcrypt \
         libpng \
